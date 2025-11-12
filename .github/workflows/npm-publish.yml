@@ -10,18 +10,35 @@ on:
 
 jobs:
 
-  build:
-    uses: ./.github/workflows/build.yml
-
-  test:
-    uses: ./.github/workflows/coverage.yml
-
-  publish-npm:
-    needs: 
-      - build
-      - test
+  publish-taskx:
     runs-on: ubuntu-latest
+
     steps:
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'yarn'
+    
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Build code
+      run: yarn build
+
+    - name: Run tests
+      run: yarn test:coverage
+
+    - name: Upload coverage
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+    
+    - name: Publish to npm
+      run: npm run publish:taskx
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    
