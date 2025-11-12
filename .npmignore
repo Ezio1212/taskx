@@ -1,0 +1,11 @@
+coverage
+example
+node_modules
+src
+test
+.gitignore
+jest.config.cjs
+package-lock.json
+rollup.config.js
+tsconfig.json
+yarn.lock

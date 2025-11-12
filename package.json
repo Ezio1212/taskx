@@ -1,0 +1,67 @@
+{
+  "name": "taskx",
+  "version": "1.0.0",
+  "description": "A lightweight TypeScript library for managing complex asynchronous task dependencies with intelligent dependency graph execution and parallel optimization",
+  "keywords": [
+    "async",
+    "tasks",
+    "dependencies",
+    "workflow",
+    "typescript",
+    "task-graph",
+    "parallel-execution",
+    "dependency-management",
+    "task-flow",
+    "async-workflow",
+    "task-runner",
+    "async-tasks",
+    "error-handling",
+    "task-orchestration"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@jest/globals": "^30.2.0",
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@tsconfig/strictest": "^2.0.7",
+    "@types/graceful-fs": "^4.1.9",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.19.25",
+    "jest": "^30.2.0",
+    "rollup": "^4.53.2",
+    "rollup-plugin-delete": "^3.0.1",
+    "rollup-plugin-dts": "^6.2.3",
+    "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  },
+  "author": {
+    "name": "Ezio1212",
+    "email": "lostcyd@vip.qq.com",
+    "url": "https://github.com/Ezio1212"
+  }
+}
