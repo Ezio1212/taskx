@@ -1,42 +1,15 @@
 {
-  "name": "taskx",
+  "name": "@taskx/workspace",
   "version": "1.0.0",
-  "description": "A lightweight TypeScript library for managing complex asynchronous task dependencies with intelligent dependency graph execution and parallel optimization",
-  "keywords": [
-    "async",
-    "tasks",
-    "dependencies",
-    "workflow",
-    "typescript",
-    "task-graph",
-    "parallel-execution",
-    "dependency-management",
-    "task-flow",
-    "async-workflow",
-    "task-runner",
-    "async-tasks",
-    "error-handling",
-    "task-orchestration"
-  ],
   "type": "module",
-  "main": "./dist/index.cjs.js",
-  "module": "./dist/index.esm.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.esm.js",
-      "require": "./dist/index.cjs.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "test": "jest",
-    "test:coverage": "jest --coverage"
+    "build": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
+    "dev": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript --watch",
+    "test": "jest --config jest.config.ts",
+    "test:coverage": "jest --config jest.config.ts --coverage",
+    "publish:taskx": "npm run prepublish:taskx && npm run publish:taskx:exec",
+    "prepublish:taskx": "tsx scripts/prepublish.ts",
+    "publish:taskx:exec": "cd packages/taskx && npm publish"
   },
   "license": "MIT",
   "devDependencies": {

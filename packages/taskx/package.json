@@ -1,0 +1,53 @@
+{
+    "name": "taskx",
+    "version": "1.0.0",
+    "description": "A lightweight TypeScript library for managing complex asynchronous task dependencies with intelligent dependency graph execution and parallel optimization",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Ezio1212/taskx.git"
+    },
+    "homepage": "https://github.com/Ezio1212/taskx#readme",
+    "bugs": {
+        "url": "https://github.com/Ezio1212/taskx/issues"
+    },
+    "keywords": [
+        "async",
+        "tasks",
+        "dependencies",
+        "workflow",
+        "typescript",
+        "task-graph",
+        "parallel-execution",
+        "dependency-management",
+        "task-flow",
+        "async-workflow",
+        "task-runner",
+        "async-tasks",
+        "error-handling",
+        "task-orchestration"
+    ],
+    "type": "module",
+    "main": "./index.cjs.js",
+    "module": "./index.esm.js",
+    "types": "./index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./index.esm.js",
+            "require": "./index.cjs.js",
+            "types": "./index.d.ts"
+        }
+    },
+    "files": [
+        "./index.esm.js",
+        "./index.cjs.js",
+        "./index.d.ts",
+        "./LICENSE",
+        "./README.md"
+    ],
+    "license": "MIT",
+    "author": {
+        "name": "Ezio1212",
+        "email": "lostcyd@vip.qq.com",
+        "url": "https://github.com/Ezio1212"
+    }
+}

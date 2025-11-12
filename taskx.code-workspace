@@ -1,0 +1,12 @@
+{
+    "folders": [
+		{
+			"path": "packages/example",
+			"name": "@taskx/example"
+		},
+		{
+			"path": "packages/taskx",
+			"name": "@taskx/taskx"
+		}
+	]
+}

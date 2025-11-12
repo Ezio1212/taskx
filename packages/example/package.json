@@ -1,0 +1,13 @@
+{
+  "name": "@taskx/example",
+  "version": "1.0.0",
+  "scripts": {
+    "example": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "taskx": "file:../taskx"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.6"
+  }
+}

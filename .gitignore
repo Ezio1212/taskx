@@ -7,6 +7,10 @@ yarn-error.log*
 lerna-debug.log*
 package-lock.json
 
+packages/taskx/yarn.lock
+packages/taskx/README.md
+packages/taskx/LICENSE
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -138,3 +142,7 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+*.js
+*.js.map
+*.d.ts
