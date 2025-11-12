@@ -9,7 +9,7 @@
     "test:coverage": "jest --config jest.config.ts --coverage",
     "publish:taskx": "npm run prepublish:taskx && npm run publish:taskx:exec",
     "prepublish:taskx": "tsx scripts/prepublish.ts",
-    "publish:taskx:exec": "cd packages/taskx && npm publish"
+    "publish:taskx:exec": "cd packages/taskx && npm publish --//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN"
   },
   "license": "MIT",
   "devDependencies": {
