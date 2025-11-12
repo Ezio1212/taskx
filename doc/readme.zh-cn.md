@@ -1,9 +1,9 @@
 # Taskx - 异步任务依赖网络执行器
 
-<p align="center">
-  <a href="./readme.md">English</a> |
-  中文
-</p>
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/main/LICENSE) [![NPM](https://img.shields.io/npm/v/taskx)](https://www.npmjs.com/package/taskx) [![size](https://img.shields.io/bundlejs/size/taskx)](https://www.npmjs.com/package/taskx) [![build status](https://github.com/Ezio1212/taskx/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Ezio1212/taskx/actions/workflows/build.yml) [![ci status](https://github.com/Ezio1212/taskx/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Ezio1212/taskx/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/github/Ezio1212/taskx/branch/main/graph/badge.svg?token=1JU9RH9IFB)](https://codecov.io/github/Ezio1212/taskx)
+
+[English](../readme.md) | 中文
 
 Taskx 是一个专为管理复杂异步任务依赖关系而设计的 TypeScript 库。它通过智能的依赖图执行机制，让开发者能够轻松构建和管理复杂的异步工作流。
 

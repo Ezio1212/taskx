@@ -1,9 +1,9 @@
 # Taskx - Asynchronous Task Dependency Network Executor
 
-<p align="center">
-  English |
-  <a href="./doc/readme.zh-cn.md">中文</a>
-</p>
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/main/LICENSE) [![NPM](https://img.shields.io/npm/v/taskx)](https://www.npmjs.com/package/taskx) [![size](https://img.shields.io/bundlejs/size/taskx)](https://www.npmjs.com/package/taskx) [![build status](https://github.com/Ezio1212/taskx/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Ezio1212/taskx/actions/workflows/build.yml) [![ci status](https://github.com/Ezio1212/taskx/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Ezio1212/taskx/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/github/Ezio1212/taskx/branch/main/graph/badge.svg?token=1JU9RH9IFB)](https://codecov.io/github/Ezio1212/taskx)
+
+English | [中文](./doc/readme.zh-cn.md)
 
 Taskx is a TypeScript library designed specifically for managing complex asynchronous task dependencies. Through its intelligent dependency graph execution mechanism, it enables developers to easily build and manage complex asynchronous workflows.
 
