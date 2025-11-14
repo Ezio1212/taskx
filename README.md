@@ -44,29 +44,30 @@ yarn add taskx
 ```typescript
 import { useProcessor, registerTask, ErrorHandlingStrategy } from 'taskx';
 
-// Create asynchronous tasks
-const taskA = registerTask(async (context) => {
-    console.log('Task A started');
+const asyncMethodA = async (context) => {
+    console.log('Async method A started.');
     await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Task A completed');
-});
+    context.results.set(asyncMethodA, 'result A');
+    console.log('Async method A finished.');
+};
 
-const taskB = registerTask(async (context) => {
-    console.log('Task B started');
-    await new Promise(resolve => setTimeout(resolve, 500));
-    console.log('Task B completed');
-});
+const asyncMethodB = async (context) => {
+    console.log('Async method B started.');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log('result from B:', context.results.get(asyncMethodA));
+    console.log('Async method B finished.');
+};
+
+// Create asynchronous tasks
+const taskA = registerTask(asyncMethodA);
+const taskB = registerTask(asyncMethodB);
 
 // Establish dependency: taskB depends on taskA
 taskB.dependOn(taskA);
 
 // Execute tasks
 async function runTasks() {
-    const processor = useProcessor({
-        errorHandlingStrategy: ErrorHandlingStrategy.STOP_ALL
-    });
-    
-    await processor.process([taskA, taskB]);
+    await useProcessor().process([taskB]);
     console.log('All tasks completed');
 }
 
@@ -86,12 +87,15 @@ const task4 = registerTask(async () => console.log('Task 4'));
 
 // Establish complex dependencies
 // task3 depends on task1 and task2
-// task4 depends on task3
+// task4 depends on task2
 task3.dependOn(task1, task2);
-task4.dependOn(task3);
+task4.dependOn(task2);
 
-// Execution: task1 and task2 run in parallel, then task3 runs, finally task4
-await useProcessor().process([task1, task2, task3, task4]);
+// Execution
+// task1 and task2 run in parallel
+// task4 will execute immediately after task2 completes (does not depend on task1)
+// task3 will execute after both task1 and task2 complete (depends on both task1 and task2)
+await useProcessor().process([task3, task4]); // task1 and task2 don't need to be passed as they are dependencies of task3 and task4
 ```
 
 ## API Reference
@@ -128,43 +132,57 @@ Stop only affected downstream tasks when an error occurs, without affecting othe
 ```typescript
 import { useProcessor, registerTask, ErrorHandlingStrategy } from 'taskx';
 
-// Create tasks with complex dependencies
-const taskA = registerTask(async () => {
-    console.log('Task A: Loading user data');
+const asyncMethodA = async () => {
+    console.log('Async method A started.');
     await new Promise(resolve => setTimeout(resolve, 200));
-    console.log('Task A: User data loaded');
-});
+    console.log('Async method A finished.');
+};
 
-const taskB = registerTask(async () => {
-    console.log('Task B: Processing payment');
-    await new Promise(resolve => setTimeout(resolve, 300));
-    console.log('Task B: Payment processed');
-});
+const asyncMethodB = async () => {
+    console.log('Async method B started.');
+    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log('Async method B finished.');
+};
 
-const taskC = registerTask(async () => {
-    console.log('Task C: Sending notification');
-    await new Promise(resolve => setTimeout(resolve, 100));
-    console.log('Task C: Notification sent');
-});
+const asyncMethodC = async () => {
+    console.log('Async method C started.');
+    // await new Promise(resolve => setTimeout(resolve, 200));
+    console.log('Async method C errored.');
+    throw new Error('Async method C errored.');
+};
 
-const taskD = registerTask(async () => {
-    console.log('Task D: Failed task - throwing error');
-    throw new Error('Task D: Database connection failed');
-});
+const asyncMethodD = async () => {
+    console.log('Async method D started.');
+    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log('Async method D finished.');
+};
 
-const taskE = registerTask(async () => {
-    console.log('Task E: Generating report');
-    await new Promise(resolve => setTimeout(resolve, 150));
-    console.log('Task E: Report generated');
-});
+const asyncMethodE = async () => {
+    console.log('Async method E started.');
+    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log('Async method E finished.');
+};
 
-// Complex dependency setup:
-// taskC depends on taskA and taskB
-// taskD depends on taskC (will fail)
-// taskE depends on taskB (parallel branch)
+// Create tasks with complex dependencies
+const taskA = registerTask(asyncMethodA);
+
+const taskB = registerTask(asyncMethodB);
+
+const taskC = registerTask(asyncMethodC);
+
+const taskD = registerTask(asyncMethodD);
+
+const taskE = registerTask(asyncMethodE);
+
+// Set up complex dependencies
+// A   B
+// | / |
+// C   D
+// | / | 
+// E   F
 taskC.dependOn(taskA, taskB);
-taskD.dependOn(taskC);
-taskE.dependOn(taskB);
+taskD.dependOn(taskB);
+taskE.dependOn(taskC, taskD);
 
 // Example 1: STOP_ALL Strategy
 console.log('=== STOP_ALL Strategy Demo ===');
@@ -174,17 +192,18 @@ async function demoStopAll() {
     });
     
     try {
-        await processor.process([taskA, taskB, taskC, taskD, taskE]);
+        await processor.process([taskE]);
     } catch (error) {
         console.log('❌ Error caught:', error.message);
-        console.log('Tasks completed:', Array.from(processor.context.completed));
+        console.log('Completed tasks:', Array.from(processor.context.completed));
     }
     
     // Expected output:
-    // - Task A and B run in parallel
-    // - Task C runs after A and B complete
-    // - Task D starts but fails
-    // - Task E is NEVER executed (STOP_ALL stops everything)
+    // - Tasks A and B start execution in parallel
+    // - After both taskA and taskB complete, taskC executes immediately, taskC fails
+    // - TaskE will not be executed because taskC (which it depends on) failed
+    // - After taskB completes, taskD executes immediately
+    //   - If taskD starts after taskC fails, taskD will not be started
 }
 
 // Example 2: STOP_DOWNSTREAM Strategy
@@ -198,14 +217,14 @@ async function demoStopDownstream() {
         await processor.process([taskA, taskB, taskC, taskD, taskE]);
     } catch (error) {
         console.log('❌ Error caught:', error.message);
-        console.log('Tasks completed:', Array.from(processor.context.completed));
+        console.log('Completed tasks:', Array.from(processor.context.completed));
     }
     
     // Expected output:
-    // - Task A and B run in parallel
-    // - Task C runs after A and B complete
-    // - Task D starts but fails
-    // - Task E IS executed (parallel branch unaffected)
+    // - Tasks A and B start execution in parallel
+    // - After both taskA and taskB complete, taskC executes immediately, taskC fails
+    // - TaskE will not be executed because it depends on failed taskC
+    // - After taskB completes, taskD executes immediately (not affected by the error in the other branch)
 }
 
 // Run both demos
@@ -217,7 +236,7 @@ await demoStopDownstream();
 
 | Strategy | Behavior | Use Case |
 |----------|----------|----------|
-| **STOP_ALL** | Error in any task stops entire workflow | Critical workflows where all tasks must succeed |
+| **STOP_ALL** | Error in any task stops all unstarted parts of the workflow | Critical business processes (all tasks must succeed) |
 | **STOP_DOWNSTREAM** | Error only affects dependent tasks | Workflows with independent parallel branches |
 
 ### Task Processor Methods
@@ -234,45 +253,6 @@ Execute the given task list.
 
 #### `processor.context: iTaskxContext`
 Get task execution context containing execution results and status information.
-
-## Error Handling
-
-### Basic Error Handling
-
-```typescript
-try {
-    await processor.process(tasks);
-} catch (error) {
-    if (error instanceof CircularDependencyError) {
-        console.error('Circular dependency detected:', error.message);
-    } else {
-        console.error('Task execution error:', error.message);
-    }
-}
-```
-
-### Error Propagation Example
-
-```typescript
-const taskA = registerTask(async () => {
-    throw new Error('Task A failed');
-});
-
-const taskB = registerTask(async () => {
-    console.log('Task B executed normally');
-});
-
-const taskC = registerTask(async () => {
-    console.log('Task C executed normally');
-});
-
-// taskB depends on taskA
-taskB.dependOn(taskA);
-
-// Using STOP_ALL strategy: taskA failure stops all tasks
-// Using STOP_DOWNSTREAM strategy: taskA failure only affects taskB, taskC still executes
-taskC.dependOn(taskA);
-```
 
 ## Advanced Usage
 
@@ -308,15 +288,15 @@ const riskyTask = registerTask(async (context) => {
 
 ## Performance Characteristics
 
-- **High-Speed Execution**: Promise-based parallel execution optimization, maximizing system resource utilization
+- **Intelligent Scheduling**: Communication between tasks based on dependency relationships, ensuring no task execution is blocked by unrelated tasks
 - **Lightweight & Efficient**: Clean core code, no extra dependencies, fast startup
-- **Intelligent Scheduling**: Automatic parallel task identification, reducing unnecessary waiting times
 - **Type Safety**: Full TypeScript type support, improving development efficiency
 - **Extensibility**: Easy integration into existing projects, quick onboarding
 
 ## Limitations
 
 - Task dependency graphs must be finite (no circular dependencies allowed)
+  - Before executing the task network, if dependencies contain circular dependencies, relevant exceptions will be thrown
 - Task execution functions must be asynchronous
 - Dynamic dependency modification during execution is not supported
 
@@ -330,7 +310,7 @@ Issues and Pull Requests are welcome!
 
 ## Changelog
 
-### v1.0.0
+### v1.0.x
 - Initial version release
 - Core dependency management functionality
 - Error handling strategies
