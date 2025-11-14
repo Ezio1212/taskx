@@ -44,29 +44,30 @@ yarn add taskx
 ```typescript
 import { useProcessor, registerTask, ErrorHandlingStrategy } from 'taskx';
 
-// 创建异步任务
-const taskA = registerTask(async (context) => {
-    console.log('任务A开始执行');
+const asyncMethodA = async (context) => {
+    console.log('Async method A started.');
     await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('任务A完成');
-});
+    context.results.set(asyncMethodA, 'result A');
+    console.log('Async method A finished.');
+}
 
-const taskB = registerTask(async (context) => {
-    console.log('任务B开始执行');
-    await new Promise(resolve => setTimeout(resolve, 500));
-    console.log('任务B完成');
-});
+const asyncMethodB = async (context) => {
+    console.log('Async method B started.');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log('result from B:', context.results.get(asyncMethodA));
+    console.log('Async method B finished.');
+}
+
+// 创建异步任务
+const taskA = registerTask(asyncMethodA);
+const taskB = registerTask(asyncMethodB);
 
 // 建立依赖关系：taskB 依赖于 taskA
 taskB.dependOn(taskA);
 
 // 执行任务
 async function runTasks() {
-    const processor = useProcessor({
-        errorHandlingStrategy: ErrorHandlingStrategy.STOP_ALL
-    });
-    
-    await processor.process([taskA, taskB]);
+    await useProcessor().process([taskB]);
     console.log('所有任务完成');
 }
 
@@ -86,12 +87,16 @@ const task4 = registerTask(async () => console.log('任务4'));
 
 // 建立复杂依赖关系
 // task3 依赖于 task1 和 task2
-// task4 依赖于 task3
+// task4 依赖于 task2
 task3.dependOn(task1, task2);
-task4.dependOn(task3);
+task4.dependOn(task2);
 
-// 执行：task1 和 task2 并行执行，完成后 task3 执行，最后 task4 执行
-await useProcessor().process([task1, task2, task3, task4]);
+// 执行
+// task1 和 task2 并行执行
+// task4 会在 task2 完成后立即执行（不依赖task1的执行）
+// task3 会在 task1 和 task2 完成后执行（同时依赖task1和task2）
+await useProcessor().process([task3, task4]); // 可以不传task1和task2，因为它们是task3和task4的依赖
+
 ```
 
 ## API 参考
@@ -128,43 +133,60 @@ await useProcessor().process([task1, task2, task3, task4]);
 ```typescript
 import { useProcessor, registerTask, ErrorHandlingStrategy } from 'taskx';
 
-// 创建具有复杂依赖关系的任务
-const taskA = registerTask(async () => {
-    console.log('任务A: 加载用户数据');
+const asyncMethodA = async () => {
+    console.log('Async method A started.');
     await new Promise(resolve => setTimeout(resolve, 200));
-    console.log('任务A: 用户数据加载完成');
-});
+    console.log('Async method A finished.');
+};
 
-const taskB = registerTask(async () => {
-    console.log('任务B: 处理支付');
-    await new Promise(resolve => setTimeout(resolve, 300));
-    console.log('任务B: 支付处理完成');
-});
+const asyncMethodB = async () => {
+    console.log('Async method B started.');
+    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log('Async method B finished.');
+};
 
-const taskC = registerTask(async () => {
-    console.log('任务C: 发送通知');
-    await new Promise(resolve => setTimeout(resolve, 100));
-    console.log('任务C: 通知发送完成');
-});
+const asyncMethodC = async () => {
+    console.log('Async method C started.');
+    // await new Promise(resolve => setTimeout(resolve, 200));
+    console.log('Async method C errored.');
+    throw new Error('Async method C errored.');
+};
 
-const taskD = registerTask(async () => {
-    console.log('任务D: 失败任务 - 抛出错误');
-    throw new Error('任务D: 数据库连接失败');
-});
+const asyncMethodD = async () => {
+    console.log('Async method D started.');
+    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log('Async method D finished.');
+};
 
-const taskE = registerTask(async () => {
-    console.log('任务E: 生成报告');
-    await new Promise(resolve => setTimeout(resolve, 150));
-    console.log('任务E: 报告生成完成');
-});
+const asyncMethodE = async () => {
+    console.log('Async method E started.');
+    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log('Async method E finished.');
+};
 
-// 复杂依赖关系设置：
-// taskC 依赖于 taskA 和 taskB
-// taskD 依赖于 taskC（会失败）
-// taskE 依赖于 taskB（并行分支）
+// 创建具有复杂依赖关系的任务
+const taskA = registerTask(asyncMethodA);
+
+const taskB = registerTask(asyncMethodB);
+
+const taskC = registerTask(asyncMethodC);
+
+const taskD = registerTask(asyncMethodD);
+
+const taskE = registerTask(asyncMethodE);
+
+const taskF = registerTask(asyncMethodF);
+
+// 设置复杂依赖关系
+// A   B
+// | / |
+// C   D
+// | / | 
+// E   F
 taskC.dependOn(taskA, taskB);
-taskD.dependOn(taskC);
-taskE.dependOn(taskB);
+taskD.dependOn(taskB);
+taskE.dependOn(taskC, taskD);
+taskF.dependOn(taskD);
 
 // 示例1：STOP_ALL 策略
 console.log('=== STOP_ALL 策略演示 ===');
@@ -174,17 +196,20 @@ async function demoStopAll() {
     });
     
     try {
-        await processor.process([taskA, taskB, taskC, taskD, taskE]);
+        await processor.process([taskE, taskF]);
     } catch (error) {
         console.log('❌ 捕获到错误:', error.message);
         console.log('已完成的任务:', Array.from(processor.context.completed));
     }
     
     // 预期输出：
-    // - 任务A和B并行执行
-    // - 任务C在A和B完成后执行
-    // - 任务D开始执行但失败
-    // - 任务E永远不会执行（STOP_ALL停止所有任务）
+    // - 任务A和B并行开始执行
+    // - 任务A和任务B都完成后，立即执行任务C，任务C出错
+    // - 任务E不会被执行，因为任务E依赖的任务C出错
+    // - 任务B完成后，立即执行任务D
+    //      - 如果任务D启动在任务C出错后，则任务D不会被启动
+    // - 任务D完成后，立即执行任务F
+    //      - 如果任务D未启动，则不会执行任务F
 }
 
 // 示例2：STOP_DOWNSTREAM 策略
@@ -202,10 +227,11 @@ async function demoStopDownstream() {
     }
     
     // 预期输出：
-    // - 任务A和B并行执行
-    // - 任务C在A和B完成后执行
-    // - 任务D开始执行但失败
-    // - 任务E正常执行（并行分支不受影响）
+    // - 任务A和B并行开始执行
+    // - 任务A和任务B都完成后，立即执行任务C，任务C出错
+    // - 任务E不会被执行，因为任务E依赖的任务C出错
+    // - 任务B完成后，立即执行任务D (不会受到另一分支错误的影响)
+    // - 任务D完成后，立即执行任务F
 }
 
 // 运行两个演示
@@ -217,7 +243,7 @@ await demoStopDownstream();
 
 | 策略 | 行为 | 适用场景 |
 |------|------|----------|
-| **STOP_ALL** | 任何任务出错都停止整个工作流 | 关键业务流程（所有任务必须成功） |
+| **STOP_ALL** | 任何任务出错都停止整个工作流未启动的部分 | 关键业务流程（所有任务必须成功） |
 | **STOP_DOWNSTREAM** | 错误仅影响相关依赖任务 | 有独立并行分支的工作流 |
 
 ### 任务处理器方法
@@ -234,45 +260,6 @@ await demoStopDownstream();
 
 #### `processor.context: iTaskxContext`
 获取任务执行上下文，包含执行结果和状态信息。
-
-## 错误处理
-
-### 基本错误处理
-
-```typescript
-try {
-    await processor.process(tasks);
-} catch (error) {
-    if (error instanceof CircularDependencyError) {
-        console.error('检测到循环依赖:', error.message);
-    } else {
-        console.error('任务执行错误:', error.message);
-    }
-}
-```
-
-### 错误传播示例
-
-```typescript
-const taskA = registerTask(async () => {
-    throw new Error('任务A失败');
-});
-
-const taskB = registerTask(async () => {
-    console.log('任务B正常执行');
-});
-
-const taskC = registerTask(async () => {
-    console.log('任务C正常执行');
-});
-
-// taskB 依赖于 taskA
-taskB.dependOn(taskA);
-
-// 使用 STOP_ALL 策略：taskA 失败会导致所有任务停止
-// 使用 STOP_DOWNSTREAM 策略：taskA 失败只会影响 taskB，taskC 仍可执行
-taskC.dependOn(taskA);
-```
 
 ## 高级用法
 
@@ -308,17 +295,20 @@ const riskyTask = registerTask(async (context) => {
 
 ## 性能特点
 
-- **极速执行**: 基于 Promise 的并行执行优化，最大化利用系统资源
+- **智能调度**: 基于任务之间的依赖关系作为任务通讯，保障任何一个任务的执行不被无关的任务阻塞
 - **轻量高效**: 核心代码简洁，无额外依赖，启动速度快
-- **智能调度**: 自动识别并行任务，减少不必要的等待时间
 - **类型安全**: 完整的 TypeScript 类型支持，开发效率高
 - **可扩展性**: 易于集成到现有项目中，快速上手
 
 ## 限制
 
 - 任务依赖图必须是有限的（不能有循环依赖）
+
+    - 执行任务网络前，如果依赖关系存在循环依赖，会抛出相关异常
+
 - 任务执行函数必须是异步的
-- 不支持动态修改依赖关系（执行过程中）
+
+- 不支持在执行过程中动态修改依赖关系
 
 ## 贡献
 
@@ -330,7 +320,7 @@ const riskyTask = registerTask(async (context) => {
 
 ## 更新日志
 
-### v1.0.0
+### v1.0.x
 - 初始版本发布
 - 核心依赖管理功能
 - 错误处理策略
