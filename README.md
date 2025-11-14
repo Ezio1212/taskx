@@ -1,9 +1,16 @@
 # Taskx - Asynchronous Task Dependency Network Executor
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/main/LICENSE) [![NPM](https://img.shields.io/npm/v/taskx)](https://www.npmjs.com/package/taskx) [![size](https://img.shields.io/bundlejs/size/taskx)](https://www.npmjs.com/package/taskx) [![build status](https://github.com/Ezio1212/taskx/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Ezio1212/taskx/actions/workflows/build.yml) [![ci status](https://github.com/Ezio1212/taskx/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Ezio1212/taskx/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/github/Ezio1212/taskx/branch/main/graph/badge.svg?token=1JU9RH9IFB)](https://codecov.io/github/Ezio1212/taskx)
+[![license][license]][license-url]
+[![npm][npm]][npm-url]
+[![build][build]][build-url]
+[![ci status][ci]][ci-url]
+[![coverage][cover]][cover-url]
+[![PR's welcome][prs]][prs-url]
+[![install size][install-size]][install-size-url]
+[![minified size][minified-size]][minified-size-url]
+[![downloads][downloads]][downloads-url]
 
-English | [中文](./doc/readme.zh-cn.md)
+[English][readme-en] | [中文][readme-zh-cn]
 
 Taskx is a TypeScript library designed specifically for managing complex asynchronous task dependencies. Through its intelligent dependency graph execution mechanism, it enables developers to easily build and manage complex asynchronous workflows.
 
@@ -331,3 +338,25 @@ Issues and Pull Requests are welcome!
 ---
 
 **Taskx** - Fast, efficient asynchronous workflow solution that makes complex dependencies simple and quick!
+
+[npm]: https://img.shields.io/npm/v/taskx.svg
+[npm-url]: https://npmjs.com/package/taskx
+[build]: https://github.com/Ezio1212/taskx/actions/workflows/build.yml/badge.svg?branch=main
+[build-url]: https://github.com/Ezio1212/taskx/actions/workflows/build.yml
+[ci]: https://github.com/Ezio1212/taskx/actions/workflows/ci.yml/badge.svg?branch=main
+[ci-url]: https://github.com/Ezio1212/taskx/actions/workflows/ci.yml
+[cover]: https://codecov.io/github/Ezio1212/taskx/branch/main/graph/badge.svg?token=1JU9RH9IFB
+[cover-url]: https://codecov.io/gh/Ezio1212/taskx
+[prs]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg
+[prs-url]: https://github.com/Ezio1212/taskx/issues
+[install-size]: https://packagephobia.com/badge?p=taskx
+[install-size-url]: https://packagephobia.com/result?p=taskx
+[minified-size]: https://img.shields.io/bundlejs/size/taskx
+[minified-size-url]: https://www.npmjs.com/package/taskx
+[downloads]: https://img.shields.io/npm/dm/taskx.svg
+[downloads-url]: https://npmcharts.com/compare/taskx?minimal=true
+[license]: https://img.shields.io/badge/license-MIT-blue.svg
+[license-url]: https://github.com/Ezio1212/taskx/blob/main/LICENSE
+
+[readme-zh-cn]: ./doc/readme.zh-cn.md
+[readme-en]: /README.md
