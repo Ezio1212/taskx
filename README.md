@@ -163,6 +163,12 @@ const asyncMethodE = async () => {
     console.log('Async method E finished.');
 };
 
+const asyncMethodF = async () => {
+    console.log('Async method F started.');
+    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log('Async method F finished.');
+};
+
 // Create tasks with complex dependencies
 const taskA = registerTask(asyncMethodA);
 
@@ -174,6 +180,8 @@ const taskD = registerTask(asyncMethodD);
 
 const taskE = registerTask(asyncMethodE);
 
+const taskF = registerTask(asyncMethodF);
+
 // Set up complex dependencies
 // A   B
 // | / |
@@ -183,6 +191,7 @@ const taskE = registerTask(asyncMethodE);
 taskC.dependOn(taskA, taskB);
 taskD.dependOn(taskB);
 taskE.dependOn(taskC, taskD);
+taskF.dependOn(taskD);
 
 // Example 1: STOP_ALL Strategy
 console.log('=== STOP_ALL Strategy Demo ===');
@@ -204,6 +213,8 @@ async function demoStopAll() {
     // - TaskE will not be executed because taskC (which it depends on) failed
     // - After taskB completes, taskD executes immediately
     //   - If taskD starts after taskC fails, taskD will not be started
+    // - After taskD completes, taskF executes immediately
+    //   - If taskD does not started, taskF will not be started
 }
 
 // Example 2: STOP_DOWNSTREAM Strategy
@@ -225,6 +236,7 @@ async function demoStopDownstream() {
     // - After both taskA and taskB complete, taskC executes immediately, taskC fails
     // - TaskE will not be executed because it depends on failed taskC
     // - After taskB completes, taskD executes immediately (not affected by the error in the other branch)
+    // - After taskD completes, taskF executes immediately (not affected by the error in the other branch)
 }
 
 // Run both demos
