@@ -164,6 +164,12 @@ const asyncMethodE = async () => {
     console.log('Async method E finished.');
 };
 
+const asyncMethodF = async () => {
+    console.log('Async method F started.');
+    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log('Async method F finished.');
+};
+
 // 创建具有复杂依赖关系的任务
 const taskA = registerTask(asyncMethodA);
 
